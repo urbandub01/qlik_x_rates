@@ -1,0 +1,26 @@
+SET BaseCurrency = 'EUR'; //Set the base currency you want exchange rates for
+SET DateFormat='YYYY-MM-DD'; //Sets the date format to follow xe.com
+Let varMinDate = Num(Makedate(2019,7,28)); //sets the minimum date to fetch the xrates
+Let varMaxDate = Num(Makedate(Year(today()),7,30)); //sets the maximum date to fetch the xrates
+
+
+
+Datefield:
+LOAD date($(varMinDate)+IterNo()-1) AS Dates
+AUTOGENERATE (1) 
+WHILE $(varMinDate)+IterNo()-1<= $(varMaxDate);
+
+
+
+FOR EACH i in FieldValueList('Dates')
+
+rates:
+LOAD *,
+    '$(i)' as CurrencyDate
+   
+ FROM [lib://xrates]
+(URL is [https://www.xe.com/currencytables/?from=$(BaseCurrency)&date=$(i)],html, codepage is 1252, embedded labels, table is @1);
+
+NEXT i ;
+
+DROP TABLE Datefield;
